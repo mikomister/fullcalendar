@@ -14195,22 +14195,32 @@ var ListView = /** @class */ (function (_super) {
     ListView.prototype.renderSegList = function (allSegs) {
         var segsByDay = this.groupSegsByDay(allSegs); // sparse array
         var dayIndex;
-        var daySegs;
-        var i;
         var tableEl = $('<table class="fc-list-table ' + this.calendar.theme.getClass('tableList') + '"><tbody/></table>');
         var tbodyEl = tableEl.find('tbody');
-        for (dayIndex = 0; dayIndex < segsByDay.length; dayIndex++) {
-            daySegs = segsByDay[dayIndex];
-            if (daySegs) { // sparse array, so might be undefined
-                // append a day header
-                tbodyEl.append(this.dayHeaderHtml(this.dayDates[dayIndex]));
-                this.eventRenderer.sortEventSegs(daySegs);
-                for (i = 0; i < daySegs.length; i++) {
-                    tbodyEl.append(daySegs[i].el); // append event row
-                }
+        if (this.options.reverseOrder && this.options.reverseOrder === true) {
+            for (dayIndex = segsByDay.length - 1; dayIndex > -1; dayIndex--) {
+                this.addToRendeSegList(segsByDay, dayIndex, tbodyEl);
+            }
+        }
+        else {
+            for (dayIndex = 0; dayIndex < segsByDay.length; dayIndex++) {
+                this.addToRendeSegList(segsByDay, dayIndex, tbodyEl);
             }
         }
         this.contentEl.empty().append(tableEl);
+    };
+    // Вынес функцию для того чтобы не нарушать принцип DRY
+    ListView.prototype.addToRendeSegList = function (segsByDay, dayIndex, tbodyEl) {
+        var daySegs = segsByDay[dayIndex];
+        var i;
+        if (daySegs) { // sparse array, so might be undefined
+            // append a day header
+            tbodyEl.append(this.dayHeaderHtml(this.dayDates[dayIndex]));
+            this.eventRenderer.sortEventSegs(daySegs);
+            for (i = 0; i < daySegs.length; i++) {
+                tbodyEl.append(daySegs[i].el); // append event row
+            }
+        }
     };
     // Returns a sparse array of arrays, segs grouped by their dayIndex
     ListView.prototype.groupSegsByDay = function (segs) {

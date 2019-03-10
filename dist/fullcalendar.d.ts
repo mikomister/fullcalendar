@@ -2459,6 +2459,7 @@ declare module 'fullcalendar/ListView' {
 	    componentFootprintToSegs(footprint: any): any[];
 	    renderEmptyMessage(): void;
 	    renderSegList(allSegs: any): void;
+	    addToRendeSegList(segsByDay: any, dayIndex: any, tbodyEl: any): void;
 	    groupSegsByDay(segs: any): any[];
 	    dayHeaderHtml(dayDate: any): string;
 	}

@@ -140,7 +140,7 @@ export default class ListView extends View {
       '<div class="fc-list-empty-wrap2">' + // TODO: try less wraps
       '<div class="fc-list-empty-wrap1">' +
       '<div class="fc-list-empty">' +
-        htmlEscape(this.opt('noEventsMessage')) +
+      htmlEscape(this.opt('noEventsMessage')) +
       '</div>' +
       '</div>' +
       '</div>'
@@ -152,28 +152,38 @@ export default class ListView extends View {
   renderSegList(allSegs) {
     let segsByDay = this.groupSegsByDay(allSegs) // sparse array
     let dayIndex
-    let daySegs
-    let i
     let tableEl = $('<table class="fc-list-table ' + this.calendar.theme.getClass('tableList') + '"><tbody/></table>')
     let tbodyEl = tableEl.find('tbody')
 
-    for (dayIndex = 0; dayIndex < segsByDay.length; dayIndex++) {
-      daySegs = segsByDay[dayIndex]
-
-      if (daySegs) { // sparse array, so might be undefined
-
-        // append a day header
-        tbodyEl.append(this.dayHeaderHtml(this.dayDates[dayIndex]))
-
-        this.eventRenderer.sortEventSegs(daySegs)
-
-        for (i = 0; i < daySegs.length; i++) {
-          tbodyEl.append(daySegs[i].el) // append event row
-        }
+    if (this.options.reverseOrder && this.options.reverseOrder === true) {
+      for (dayIndex = segsByDay.length - 1; dayIndex > -1; dayIndex--) {
+        this.addToRendeSegList(segsByDay, dayIndex, tbodyEl)
+      }
+    } else {
+      for (dayIndex = 0; dayIndex < segsByDay.length; dayIndex++) {
+        this.addToRendeSegList(segsByDay, dayIndex, tbodyEl)
       }
     }
 
     this.contentEl.empty().append(tableEl)
+  }
+
+  // Вынес функцию для того чтобы не нарушать принцип DRY
+  addToRendeSegList(segsByDay, dayIndex, tbodyEl) {
+    let daySegs = segsByDay[dayIndex]
+    let i
+
+    if (daySegs) { // sparse array, so might be undefined
+
+      // append a day header
+      tbodyEl.append(this.dayHeaderHtml(this.dayDates[dayIndex]))
+
+      this.eventRenderer.sortEventSegs(daySegs)
+
+      for (i = 0; i < daySegs.length; i++) {
+        tbodyEl.append(daySegs[i].el) // append event row
+      }
+    }
   }
 
 
@@ -203,22 +213,22 @@ export default class ListView extends View {
         this.calendar.theme.getClass('tableListHeading') ||
         this.calendar.theme.getClass('widgetHeader')
       ) + '" colspan="3">' +
-        (mainFormat ?
-          this.buildGotoAnchorHtml(
-            dayDate,
-            { 'class': 'fc-list-heading-main' },
-            htmlEscape(dayDate.format(mainFormat)) // inner HTML
-          ) :
-          '') +
-        (altFormat ?
-          this.buildGotoAnchorHtml(
-            dayDate,
-            { 'class': 'fc-list-heading-alt' },
-            htmlEscape(dayDate.format(altFormat)) // inner HTML
-          ) :
-          '') +
+      (mainFormat ?
+        this.buildGotoAnchorHtml(
+          dayDate,
+          { 'class': 'fc-list-heading-main' },
+          htmlEscape(dayDate.format(mainFormat)) // inner HTML
+        ) :
+        '') +
+      (altFormat ?
+        this.buildGotoAnchorHtml(
+          dayDate,
+          { 'class': 'fc-list-heading-alt' },
+          htmlEscape(dayDate.format(altFormat)) // inner HTML
+        ) :
+        '') +
       '</td>' +
-    '</tr>'
+      '</tr>'
   }
 
 }
